@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function sendOrderConfirmation(order: any, email: string) {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Tailor.co <onboarding@resend.dev>', // Use verified domain in production
+            from: 'Elite Stitch World <onboarding@resend.dev>', // Use verified domain in production
             to: [email],
             subject: `Order Confirmation #${order.id.slice(0, 8)}`,
             html: `
@@ -22,7 +22,7 @@ export async function sendOrderConfirmation(order: any, email: string) {
                     </div>
 
                     <p>We will notify you when your garment is ready.</p>
-                    <p>Best regards,<br>The Tailor.co Team</p>
+                    <p>Best regards,<br>The Elite Stitch World Team</p>
                 </div>
             `,
         });

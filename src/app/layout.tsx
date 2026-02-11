@@ -6,7 +6,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
-    title: "Tailor.co | Premium Bespoke Tailoring",
+    title: "Elite Stitch World | Premium Bespoke Tailoring",
     description: "Custom garments tailored exclusively for you. Browse designs, order custom fits, and track your delivery.",
 };
 

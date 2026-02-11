@@ -13,10 +13,11 @@ export default function Footer() {
             <div className={`container ${styles.container}`}>
                 <div className={styles.section}>
                     <Link href="/" className={styles.logo}>
-                        TAILOR<span className={styles.logoAccent}>.CO</span>
+                        ELITE STITCH<span className={styles.logoAccent}> WORLD</span>
                     </Link>
-                    <p className={styles.description}>
-                        {t('hero.subtitle')}
+                    <p>
+                        Elite Stitch World brings the luxury of bespoke tailoring to your doorstep.
+                        Perfect fit, premium fabrics, and personalized service.
                     </p>
                     <div className={styles.socials}>
                         <br />
@@ -49,14 +50,14 @@ export default function Footer() {
                         </li>
                         <li>
                             <Mail size={18} />
-                            <span>hello@tailor.co</span>
+                            <span>hello@elitestitchworld.com</span>
                         </li>
                     </ul>
                 </div>
             </div>
             <div className={styles.bottom}>
                 <div className="container">
-                    <p>&copy; {new Date().getFullYear()} Tailor.co. {t('footer.rights')}</p>
+                    <p>&copy; {new Date().getFullYear()} Elite Stitch World. {t('footer.rights')}</p>
                 </div>
             </div>
         </footer>

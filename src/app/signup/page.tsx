@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import styles from '../login/auth.module.css'; // Reuse login styles
+import styles from '../(shop)/login/auth.module.css'; // Reuse login styles
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');

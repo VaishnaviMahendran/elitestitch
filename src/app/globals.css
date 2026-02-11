@@ -2,21 +2,27 @@
   /* Premium Color Palette */
   --background: #0f0f11;
   --foreground: #ededed;
-  
-  --primary: #d4af37; /* Gold */
+
+  --primary: #d4af37;
+  /* Gold */
   --primary-hover: #b5952f;
   --secondary: #1a1a1d;
   --accent: #2c2c30;
-  
+
   --text-muted: #a1a1aa;
   --border: #27272a;
-  
+
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: 'Playfair Display', serif; /* For headings */
+  --font-serif: 'Playfair Display', serif;
+  /* For headings */
+  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
+    'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --border-radius: 12px;
 
   /* Spacing */
   --container-padding: 2rem;
-  --max-width: 1200px;
+  --max-width: 1100px;
 }
 
 * {
@@ -40,7 +46,12 @@ a {
   text-decoration: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-serif);
   font-weight: 700;
   line-height: 1.2;
@@ -88,8 +99,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {

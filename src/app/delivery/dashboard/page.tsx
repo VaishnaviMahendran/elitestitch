@@ -31,11 +31,38 @@ export default function DeliveryDashboard() {
     const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null);
     const [showMeasurementModal, setShowMeasurementModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-    const [measurements, setMeasurements] = useState({ chest: '', waist: '', hips: '', length: '' });
+    const [measurements, setMeasurements] = useState<Record<string, any>>({});
 
     const router = useRouter();
 
     useEffect(() => {
+        // MOCK MODE: Bypass Auth and Fetching
+        console.log('Running in Mock Mode');
+        setDriverId('mock_driver_123');
+        setOrders([
+            {
+                id: 'ord_mock_001',
+                customer_name: 'Vaishnavi (Mock)',
+                amount: 1500,
+                delivery_status: 'assigned',
+                delivery_location: { lat: 11.6643, lng: 78.1460 },
+                address: '123 Mock Street, Salem',
+                phone: '9999999999',
+                payment_status: 'pending_cod'
+            },
+            {
+                id: 'ord_mock_002',
+                customer_name: 'Shubha (Mock)',
+                amount: 2500,
+                delivery_status: 'assigned',
+                delivery_location: { lat: 11.6650, lng: 78.1470 },
+                address: '456 Test Lane, Salem',
+                phone: '8888888888'
+            }
+        ]);
+        setLoading(false);
+
+        /* ORIGINAL CODE COMMENTED OUT FOR MOCK MODE
         // Get driver ID from cookie
         const match = document.cookie.match(/driver_token=([^;]+)/);
         if (match) {
@@ -44,49 +71,16 @@ export default function DeliveryDashboard() {
         } else {
             router.push('/delivery/login');
         }
+        */
     }, []);
 
     // Simulate location tracking
     useEffect(() => {
-        let interval: NodeJS.Timeout;
-
-        if (trackingOrderId && driverId) {
-            let lat = 11.6643;
-            let lng = 78.1460;
-
-            interval = setInterval(async () => {
-                // Random movement
-                lat += (Math.random() - 0.5) * 0.001;
-                lng += (Math.random() - 0.5) * 0.001;
-
-                await supabase
-                    .from('orders')
-                    .update({
-                        delivery_location: {
-                            lat,
-                            lng,
-                            updated_at: new Date().toISOString()
-                        }
-                    })
-                    .eq('id', trackingOrderId);
-            }, 3000); // Update every 3 seconds
-        }
-
-        return () => {
-            if (interval) clearInterval(interval);
-        };
-    }, [trackingOrderId, driverId]);
+        // Mock tracking - do nothing or just log
+    }, []);
 
     const fetchOrders = async (id: string) => {
-        const { data } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('assigned_to', id)
-            .neq('delivery_status', 'delivered') // Hide completed orders
-            .order('created_at', { ascending: false });
-
-        if (data) setOrders(data);
-        setLoading(false);
+        // Mock fetch - do nothing
     };
 
     const updateStatus = async (orderId: string, status: string) => {
@@ -142,20 +136,72 @@ export default function DeliveryDashboard() {
         }
     };
 
+    // Measurement Categories Configuration
+    const MEASUREMENT_CATEGORIES = {
+        'Saree Blouse': [
+            { id: 'bust', label: 'Bust (in)' },
+            { id: 'waist', label: 'Waist (in)' },
+            { id: 'shoulder', label: 'Shoulder (in)' },
+            { id: 'arm_hole', label: 'Arm Hole (in)' },
+            { id: 'sleeve_length', label: 'Sleeve Length (in)' },
+            { id: 'blouse_length', label: 'Blouse Length (in)' },
+            { id: 'front_neck', label: 'Front Neck Depth (in)' },
+            { id: 'back_neck', label: 'Back Neck Depth (in)' },
+            { id: 'knot', label: 'Knot?', type: 'select', options: ['No', 'Yes'] }
+        ],
+        'Chudithar': [
+            { id: 'bust', label: 'Bust (in)' },
+            { id: 'waist', label: 'Waist (in)' },
+            { id: 'hips', label: 'Hips (in)' },
+            { id: 'shoulder', label: 'Shoulder (in)' },
+            { id: 'sleeve_length', label: 'Sleeve Length (in)' },
+            { id: 'top_length', label: 'Top Length (in)' },
+            { id: 'pant_length', label: 'Pant Length (in)' },
+            { id: 'inseam', label: 'Inseam (in)' },
+            { id: 'knot', label: 'Knot?', type: 'select', options: ['No', 'Yes'] }
+        ],
+        'Lehenga': [
+            { id: 'blouse_bust', label: 'Blouse Bust (in)' },
+            { id: 'blouse_waist', label: 'Blouse Waist (in)' },
+            { id: 'blouse_length', label: 'Blouse Length (in)' },
+            { id: 'skirt_waist', label: 'Skirt Waist (in)' },
+            { id: 'skirt_length', label: 'Skirt Length (in)' },
+            { id: 'hips', label: 'Hips (in)' },
+            { id: 'knot', label: 'Blouse Knot?', type: 'select', options: ['No', 'Yes'] }
+        ],
+        'Half Saree': [
+            { id: 'blouse_bust', label: 'Blouse Bust (in)' },
+            { id: 'blouse_waist', label: 'Blouse Waist (in)' },
+            { id: 'blouse_length', label: 'Blouse Length (in)' },
+            { id: 'skirt_waist', label: 'Skirt Waist (in)' },
+            { id: 'skirt_length', label: 'Skirt Length (in)' },
+            { id: 'knot', label: 'Blouse Knot?', type: 'select', options: ['No', 'Yes'] }
+        ]
+    };
+
+    const [selectedCategory, setSelectedCategory] = useState<string>('Saree Blouse');
+
     const handleSaveMeasurements = async () => {
         if (!selectedOrder) return;
-        const { error } = await supabase
-            .from('orders')
-            .update({ measurements: measurements })
-            .eq('id', selectedOrder.id);
 
-        if (error) {
-            alert('Error saving measurements');
-        } else {
-            alert('Measurements saved successfully!');
-            setShowMeasurementModal(false);
-            setMeasurements({ chest: '', waist: '', hips: '', length: '' });
-        }
+        const dataToSave = {
+            category: selectedCategory,
+            ...measurements
+        };
+
+        // MOCK MODE: Bypass Supabase for UI testing
+        // const { error } = await supabase
+        //     .from('orders')
+        //     .update({ measurements: dataToSave })
+        //     .eq('id', selectedOrder.id);
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        console.log('Mock Save Data:', dataToSave);
+        alert('Measurements saved successfully! (Mock Mode)');
+        setShowMeasurementModal(false);
+        setMeasurements({}); // Reset
     };
 
     const handleLogout = () => {
@@ -306,15 +352,70 @@ export default function DeliveryDashboard() {
                     backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }}>
                     <div style={{
-                        backgroundColor: 'var(--secondary)', padding: '2rem', borderRadius: '8px', width: '90%', maxWidth: '400px', border: '1px solid var(--border)'
+                        backgroundColor: 'var(--secondary)',
+                        padding: '2rem',
+                        borderRadius: '8px',
+                        width: '90%',
+                        maxWidth: '500px',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
+                        border: '1px solid var(--border)'
                     }}>
                         <h2 style={{ marginBottom: '1.5rem', color: 'var(--foreground)' }}>Take Measurements</h2>
-                        <div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
-                            <input type="text" placeholder="Chest (in)" value={measurements.chest} onChange={e => setMeasurements({ ...measurements, chest: e.target.value })} style={{ padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }} />
-                            <input type="text" placeholder="Waist (in)" value={measurements.waist} onChange={e => setMeasurements({ ...measurements, waist: e.target.value })} style={{ padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }} />
-                            <input type="text" placeholder="Hips (in)" value={measurements.hips} onChange={e => setMeasurements({ ...measurements, hips: e.target.value })} style={{ padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }} />
-                            <input type="text" placeholder="Length (in)" value={measurements.length} onChange={e => setMeasurements({ ...measurements, length: e.target.value })} style={{ padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }} />
+
+                        {/* Category Selector */}
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Category</label>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => {
+                                    setSelectedCategory(e.target.value);
+                                    setMeasurements({}); // Reset on category change
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '4px',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'var(--background)',
+                                    color: 'var(--foreground)'
+                                }}
+                            >
+                                {Object.keys(MEASUREMENT_CATEGORIES).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
                         </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                            {MEASUREMENT_CATEGORIES[selectedCategory as keyof typeof MEASUREMENT_CATEGORIES].map((field: any) => (
+                                <div key={field.id} style={{ gridColumn: field.id === 'knot' ? '1 / -1' : 'auto' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                        {field.label}
+                                    </label>
+                                    {field.type === 'select' ? (
+                                        <select
+                                            value={(measurements as any)[field.id] || ''}
+                                            onChange={e => setMeasurements({ ...measurements, [field.id]: e.target.value })}
+                                            style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                                        >
+                                            <option value="">Select...</option>
+                                            {field.options.map((opt: string) => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={(measurements as any)[field.id] || ''}
+                                            onChange={e => setMeasurements({ ...measurements, [field.id]: e.target.value })}
+                                            style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             <button onClick={() => setShowMeasurementModal(false)} className="btn btn-outline" style={{ flex: 1 }}>Cancel</button>
                             <button onClick={handleSaveMeasurements} className="btn btn-primary" style={{ flex: 1 }}>Save</button>
