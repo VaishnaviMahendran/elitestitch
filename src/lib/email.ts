@@ -1,8 +1,16 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendOrderConfirmation(order: any, email: string) {
+    // Lazy initialize to avoid build-time errors if env vars are missing
+    const apiKey = process.env.RESEND_API_KEY;
+    
+    if (!apiKey) {
+        console.warn('RESEND_API_KEY is missing. Email sending skipped.');
+        return { success: false, error: 'Missing API Key' };
+    }
+
+    const resend = new Resend(apiKey);
+
     try {
         const { data, error } = await resend.emails.send({
             from: 'Elite Stitch World <onboarding@resend.dev>', // Use verified domain in production
